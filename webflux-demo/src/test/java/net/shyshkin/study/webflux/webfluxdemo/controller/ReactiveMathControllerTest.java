@@ -181,7 +181,8 @@ class ReactiveMathControllerTest {
                                         .hasNoNullFieldsOrProperties()
                                         .hasFieldOrPropertyWithValue("status", 400)
                                         .hasFieldOrPropertyWithValue("error", "Input is not valid"),
-                                () -> assertThat(response.getMessage()).isEqualTo("Field `first` must not be larger then 10 but was 11;Field `second` must not be less then 1 but was -3")
+                                () -> assertThat(response.getMessage())
+                                        .contains("Field `first` must not be larger then 10 but was 11", "Field `second` must not be less then 1 but was -3")
                         )
                 );
     }
