@@ -29,6 +29,7 @@ public class ArtReactiveMathService implements ReactiveMathService {
         return Flux.range(1, 10)
                 .delayElements(Duration.ofSeconds(1))
                 .doOnNext(i -> log.debug("reactive-math-service processing : {}", i))
-                .map(i -> new Response(i * input));
+                .map(i -> new Response(i * input))
+                .doFinally(signalType -> log.debug("reactive-math-service flux ended with: {}", signalType));
     }
 }

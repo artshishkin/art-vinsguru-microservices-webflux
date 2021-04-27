@@ -93,4 +93,30 @@ class ReactiveMathControllerTest {
                 .verifyComplete();
         assertThat(counter.get()).isEqualTo(11);
     }
+
+    @Test
+//    @Disabled("too long for ci/cd")
+    void multiplicationTableStream_cancel() {
+        //given
+        int input = 6;
+        AtomicInteger counter = new AtomicInteger(1);
+
+        //when
+        Flux<Response> flux = webClient
+                .get()
+                .uri("/reactive-math/table/{input}/stream", input)
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .returnResult(Response.class)
+                .getResponseBody();
+
+        StepVerifier
+                .create(flux.take(Duration.ofSeconds(3,100000)))
+                .thenConsumeWhile(response -> response.getOutput() == counter.getAndIncrement() * input)
+                .verifyComplete();
+        assertThat(counter.get()).isEqualTo(4);
+    }
+
 }
