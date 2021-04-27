@@ -20,15 +20,28 @@ public class RouterConfig {
     private final RequestHandler handler;
 
     @Bean
-    public RouterFunction<ServerResponse> serverResponseRouterFunction() {
+    public RouterFunction<ServerResponse> highLevelRouter() {
+        return RouterFunctions.route()
+                .path("router", this::serverResponseRouterFunction)
+                .path("router-vins", this::serverResponseVinsRouterFunction)
+                .onError(VinsInputValidationException.class, handleVinsValidationException())
+                .build();
+    }
+
+    private RouterFunction<ServerResponse> serverResponseRouterFunction() {
         return RouterFunctions
                 .route()
-                .GET("router/square/{input}", handler::findSquare)
-                .GET("router/square/{input}/bad-request", handler::findSquareWithValidation)
-                .GET("router-vins/square/{input}", handler::findSquareVins)
-                .GET("router/table/{input}", handler::multiplicationTable)
-                .POST("router/multiply", handler::multiply)
-                .onError(VinsInputValidationException.class, handleVinsValidationException())
+                .GET("square/{input}", handler::findSquare)
+                .GET("square/{input}/bad-request", handler::findSquareWithValidation)
+                .GET("table/{input}", handler::multiplicationTable)
+                .POST("multiply", handler::multiply)
+                .build();
+    }
+
+    private RouterFunction<ServerResponse> serverResponseVinsRouterFunction() {
+        return RouterFunctions
+                .route()
+                .GET("square/{input}", handler::findSquareVins)
                 .build();
     }
 
