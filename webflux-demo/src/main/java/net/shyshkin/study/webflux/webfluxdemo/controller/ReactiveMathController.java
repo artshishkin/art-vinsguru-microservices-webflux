@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @Slf4j
@@ -40,7 +41,7 @@ public class ReactiveMathController {
     }
 
     @PostMapping("multiply")
-    public Mono<ResponseEntity<Response>> multiply(@RequestBody Mono<MultiplyRequestDto> requestMono,
+    public Mono<ResponseEntity<Response>> multiply(@Valid @RequestBody Mono<MultiplyRequestDto> requestMono,
                                                    @RequestHeader HttpHeaders httpHeaders) {
 
         log.debug("{}", httpHeaders);

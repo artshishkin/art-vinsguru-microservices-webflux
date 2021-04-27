@@ -1,5 +1,6 @@
 package net.shyshkin.study.webflux.webfluxdemo.controller;
 
+import net.shyshkin.study.webflux.webfluxdemo.dto.InputFailedValidationResponse;
 import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
 import org.junit.jupiter.api.Disabled;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @AutoConfigureWebTestClient(timeout = "36000")
 @SpringBootTest
@@ -157,4 +159,31 @@ class ReactiveMathControllerTest {
                 .expectBody(Response.class)
                 .value(response -> assertThat(response.getOutput()).isEqualTo(first * second));
     }
+
+    @Test
+    void multiply_inputNotValid() {
+        //given
+        int first = 11;
+        int second = -3;
+        MultiplyRequestDto multiplyRequestDto = new MultiplyRequestDto(first, second);
+
+        //when
+        webClient.post().uri("/reactive-math/multiply")
+                .body(Mono.just(multiplyRequestDto), MultiplyRequestDto.class)
+                .exchange()
+
+                //then
+                .expectStatus().isBadRequest()
+                .expectBody(InputFailedValidationResponse.class)
+                .value(response ->
+                        assertAll(
+                                () -> assertThat(response)
+                                        .hasNoNullFieldsOrProperties()
+                                        .hasFieldOrPropertyWithValue("status", 400)
+                                        .hasFieldOrPropertyWithValue("error", "Input is not valid"),
+                                () -> assertThat(response.getMessage()).isEqualTo("Field `first` must not be larger then 10 but was 11;Field `second` must not be less then 1 but was -3")
+                        )
+                );
+    }
+
 }
