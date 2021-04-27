@@ -1,22 +1,19 @@
 package net.shyshkin.study.webflux.webfluxdemo.controller;
 
+import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
-import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,7 +46,7 @@ class ReactiveMathControllerTest {
     }
 
     @Test
-//    @Disabled("too long for ci/cd")
+    @Disabled("too long for ci/cd")
     void multiplicationTable() {
         //given
         int input = 6;
@@ -71,7 +68,7 @@ class ReactiveMathControllerTest {
     }
 
     @Test
-//    @Disabled("too long for ci/cd")
+    @Disabled("too long for ci/cd")
     void multiplicationTableStream() {
         //given
         int input = 6;
@@ -96,7 +93,7 @@ class ReactiveMathControllerTest {
     }
 
     @Test
-//    @Disabled("too long for ci/cd")
+    @Disabled("too long for ci/cd")
     void multiplicationTableStream_cancel() {
         //given
         int input = 6;
@@ -120,4 +117,21 @@ class ReactiveMathControllerTest {
         assertThat(counter.get()).isEqualTo(4);
     }
 
+    @Test
+    void multiply() {
+        //given
+        int first = 4;
+        int second = 5;
+        MultiplyRequestDto multiplyRequestDto = new MultiplyRequestDto(first, second);
+
+        //when
+        webClient.post().uri("/reactive-math/multiply")
+                .body(Mono.just(multiplyRequestDto), MultiplyRequestDto.class)
+                .exchange()
+
+                //then
+                .expectStatus().isCreated()
+                .expectBody(Response.class)
+                .value(response -> assertThat(response.getOutput()).isEqualTo(first * second));
+    }
 }

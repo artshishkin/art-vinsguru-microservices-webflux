@@ -1,12 +1,11 @@
 package net.shyshkin.study.webflux.webfluxdemo.service;
 
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
 
 @Slf4j
 @Service
@@ -25,5 +24,12 @@ public class VinsguruReactiveMathService implements ReactiveMathService {
                 .doOnNext(i -> SleepUtil.sleep(1))
                 .doOnNext(i -> log.debug("vinsguru reactive-math-service processing : {}", i))
                 .map(i -> new Response(i * input));
+    }
+
+    @Override
+    public Mono<Response> multiply(Mono<MultiplyRequestDto> requestMono) {
+        return requestMono
+                .map(dto -> dto.getFirst() * dto.getSecond())
+                .map(Response::new);
     }
 }
