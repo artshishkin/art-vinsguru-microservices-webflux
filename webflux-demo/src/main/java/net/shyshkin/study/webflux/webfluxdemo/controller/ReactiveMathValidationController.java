@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
 import net.shyshkin.study.webflux.webfluxdemo.exception.VinsInputValidationException;
 import net.shyshkin.study.webflux.webfluxdemo.service.ReactiveMathService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,5 +49,15 @@ public class ReactiveMathValidationController {
                 })
                 .cast(Integer.class)
                 .flatMap(mathService::findSquare);
+    }
+
+    @GetMapping("square/{input}/error-assignment")
+    public Mono<ResponseEntity<Response>> errorAssignment(@PathVariable Integer input) {
+        return Mono
+                .just(input)
+                .filter(in -> in >= 10 && in <= 20)
+                .flatMap(mathService::findSquare)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 }

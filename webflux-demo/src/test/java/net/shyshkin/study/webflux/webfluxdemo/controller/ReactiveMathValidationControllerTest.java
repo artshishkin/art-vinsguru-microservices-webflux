@@ -26,7 +26,8 @@ class ReactiveMathValidationControllerTest {
     @ValueSource(strings = {
             "/reactive-math/square/{input}/throw",
             "/reactive-math/square/{input}/mono-error",
-            "/reactive-math/square/{input}/mono-error-handle"
+            "/reactive-math/square/{input}/mono-error-handle",
+            "/reactive-math/square/{input}/error-assignment"
     })
     void findSquare_valid(String uri) {
         //given
@@ -74,4 +75,21 @@ class ReactiveMathValidationControllerTest {
                 );
     }
 
+    @ParameterizedTest
+    @CsvSource({
+            "/reactive-math/square/{input}/error-assignment,6",
+            "/reactive-math/square/{input}/error-assignment,33"
+    })
+    void findSquare_invalidEmptyBody(String uri, int input) {
+        //when
+        webClient
+                .get()
+                .uri(uri, input)
+                .exchange()
+
+                //then
+                .expectStatus().isBadRequest()
+                .expectBody(VinsValidationResponse.class)
+                .value(response -> assertThat(response).isNull());
+    }
 }
