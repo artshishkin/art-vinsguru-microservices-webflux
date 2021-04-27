@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,14 +29,13 @@ class RouterConfigTest {
     WebTestClient webClient;
 
     @ParameterizedTest
-    @ValueSource(strings = {
-            "/router/square/{input}",
-            "/router-vins/square/{input}",
-            "/router/square/{input}/bad-request"
+    @CsvSource({
+            "/router/square/{input},10",
+            "/router/square/{input},20",
+            "/router-vins/square/{input},16",
+            "/router/square/{input}/bad-request,16"
     })
-    void findSquare_valid(String uri) {
-        //given
-        int input = 16;
+    void findSquare_valid(String uri, int input) {
 
         //when
         webClient
@@ -55,8 +53,8 @@ class RouterConfigTest {
     @CsvSource({
             "/router/square/{input}/bad-request,6",
             "/router/square/{input}/bad-request,33",
-            "/router/square/{input},6",
-            "/router/square/{input},33",
+//            "/router/square/{input},6",
+//            "/router/square/{input},33",
             "/router-vins/square/{input},6",
             "/router-vins/square/{input},33"
     })
@@ -79,6 +77,24 @@ class RouterConfigTest {
                                 () -> assertThat(response.getTimestamp()).isBefore(LocalDateTime.now())
                         )
                 );
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "/router/square/{input},6",
+            "/router/square/{input},33",
+    })
+    void findSquare_invalid_directInConfig(String uri, int input) {
+        //when
+        webClient
+                .get()
+                .uri(uri, input)
+                .exchange()
+
+                //then
+                .expectStatus().isBadRequest()
+                .expectBody(String.class)
+                .value(response -> assertThat(response).isEqualTo("only 10-20 allowed"));
     }
 
     @Test

@@ -22,8 +22,8 @@ public class RequestHandler {
     public Mono<ServerResponse> findSquare(ServerRequest serverRequest) {
 
         int input = Integer.parseInt(serverRequest.pathVariable("input"));
-        if (input < 10 || input > 20)
-            return Mono.error(new VinsInputValidationException(input));
+//        if (input < 10 || input > 20)
+//            return Mono.error(new VinsInputValidationException(input));
         return mathService
                 .findSquare(input)
                 .flatMap(response -> ServerResponse.ok().bodyValue(response));

@@ -5,10 +5,7 @@ import net.shyshkin.study.webflux.webfluxdemo.dto.VinsValidationResponse;
 import net.shyshkin.study.webflux.webfluxdemo.exception.VinsInputValidationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.reactive.function.server.*;
 import reactor.core.publisher.Mono;
 
 import java.util.function.BiFunction;
@@ -31,7 +28,8 @@ public class RouterConfig {
     private RouterFunction<ServerResponse> serverResponseRouterFunction() {
         return RouterFunctions
                 .route()
-                .GET("square/{input}", handler::findSquare)
+                .GET("square/{input}", RequestPredicates.path("*/1?").or(RequestPredicates.path("*/20")), handler::findSquare)
+                .GET("square/{input}", req -> ServerResponse.badRequest().bodyValue("only 10-20 allowed"))
                 .GET("square/{input}/bad-request", handler::findSquareWithValidation)
                 .GET("table/{input}", handler::multiplicationTable)
                 .POST("multiply", handler::multiply)
