@@ -1,9 +1,8 @@
 package net.shyshkin.study.webflux.webfluxdemo.controller;
 
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.assertj.core.api.ThrowableAssert;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,6 +10,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 import reactor.test.StepVerifier;
 
 import java.time.Duration;
@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @AutoConfigureWebTestClient(timeout = "36000")
 @SpringBootTest
@@ -48,7 +49,7 @@ class ReactiveMathControllerTest {
     }
 
     @Test
-    @Disabled("too long for ci/cd")
+//    @Disabled("too long for ci/cd")
     void multiplicationTable() {
         //given
         int input = 6;
@@ -70,7 +71,7 @@ class ReactiveMathControllerTest {
     }
 
     @Test
-    @Disabled("too long for ci/cd")
+//    @Disabled("too long for ci/cd")
     void multiplicationTableStream() {
         //given
         int input = 6;
@@ -113,7 +114,7 @@ class ReactiveMathControllerTest {
                 .getResponseBody();
 
         StepVerifier
-                .create(flux.take(Duration.ofSeconds(3,100000)))
+                .create(flux.take(3))
                 .thenConsumeWhile(response -> response.getOutput() == counter.getAndIncrement() * input)
                 .verifyComplete();
         assertThat(counter.get()).isEqualTo(4);

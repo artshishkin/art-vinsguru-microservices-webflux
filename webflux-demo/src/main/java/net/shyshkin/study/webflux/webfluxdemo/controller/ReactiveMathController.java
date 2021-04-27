@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
 import net.shyshkin.study.webflux.webfluxdemo.service.ReactiveMathService;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.json.AbstractJackson2Encoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +26,7 @@ public class ReactiveMathController {
 
     @GetMapping(value = "table/{input}")
     public Flux<Response> multiplicationTable(@PathVariable Integer input) {
+        // AbstractJackson2Encoder: for non-streaming -> `.collectList().map(list -> encodeValue(` ; for streaming -> `.map(value -> encodeStreamingValue(`
         return mathService.multiplicationTable(input);
     }
 
