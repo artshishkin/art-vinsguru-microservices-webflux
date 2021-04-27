@@ -1,6 +1,7 @@
 package net.shyshkin.study.webflux.webfluxdemo.config;
 
 import lombok.RequiredArgsConstructor;
+import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
 import net.shyshkin.study.webflux.webfluxdemo.service.ReactiveMathService;
 import org.springframework.http.MediaType;
@@ -38,5 +39,13 @@ public class RequestHandler {
                 .ok()
                 .contentType(MediaType.TEXT_EVENT_STREAM)
                 .body(responseFlux, Response.class);
+    }
+
+    public Mono<ServerResponse> multiply(ServerRequest serverRequest) {
+        Mono<MultiplyRequestDto> dtoMono = serverRequest.bodyToMono(MultiplyRequestDto.class);
+        Mono<Response> multiplyMono = mathService.multiply(dtoMono);
+        return ServerResponse
+                .created(null)
+                .body(multiplyMono, Response.class);
     }
 }

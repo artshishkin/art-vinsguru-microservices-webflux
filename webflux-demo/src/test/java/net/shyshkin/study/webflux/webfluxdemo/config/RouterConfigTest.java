@@ -1,5 +1,6 @@
 package net.shyshkin.study.webflux.webfluxdemo.config;
 
+import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -67,5 +69,23 @@ class RouterConfigTest {
                 .thenConsumeWhile(response -> response.getOutput() == counter.getAndIncrement() * input)
                 .verifyComplete();
         assertThat(counter.get()).isEqualTo(11);
+    }
+
+    @Test
+    void multiply() {
+        //given
+        int first = 4;
+        int second = 5;
+        MultiplyRequestDto multiplyRequestDto = new MultiplyRequestDto(first, second);
+
+        //when
+        webClient.post().uri("/router/multiply")
+                .body(Mono.just(multiplyRequestDto), MultiplyRequestDto.class)
+                .exchange()
+
+                //then
+                .expectStatus().isCreated()
+                .expectBody(Response.class)
+                .value(response -> assertThat(response.getOutput()).isEqualTo(first * second));
     }
 }
