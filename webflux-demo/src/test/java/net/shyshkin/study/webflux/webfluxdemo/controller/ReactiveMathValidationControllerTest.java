@@ -2,7 +2,9 @@ package net.shyshkin.study.webflux.webfluxdemo.controller;
 
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
 import net.shyshkin.study.webflux.webfluxdemo.dto.VinsValidationResponse;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,15 +22,20 @@ class ReactiveMathValidationControllerTest {
     @Autowired
     WebTestClient webClient;
 
-    @Test
-    void findSquare_valid() {
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "/reactive-math/square/{input}/throw",
+            "/reactive-math/square/{input}/mono-error",
+            "/reactive-math/square/{input}/mono-error-handle"
+    })
+    void findSquare_valid(String uri) {
         //given
         int input = 16;
 
         //when
         webClient
                 .get()
-                .uri("/reactive-math/square/{input}/throw", input)
+                .uri(uri, input)
                 .exchange()
 
                 //then
@@ -37,15 +44,20 @@ class ReactiveMathValidationControllerTest {
                 .value(response -> assertThat(response.getOutput()).isEqualTo(input * input));
     }
 
-    @Test
-    void findSquare_invalid() {
-        //given
-        int input = 6;
-
+    @ParameterizedTest
+    @CsvSource({
+            "/reactive-math/square/{input}/throw,6",
+            "/reactive-math/square/{input}/throw,33",
+            "/reactive-math/square/{input}/mono-error,6",
+            "/reactive-math/square/{input}/mono-error,33",
+            "/reactive-math/square/{input}/mono-error-handle,6",
+            "/reactive-math/square/{input}/mono-error-handle,33"
+    })
+    void findSquare_invalid(String uri, int input) {
         //when
         webClient
                 .get()
-                .uri("/reactive-math/square/{input}/throw", input)
+                .uri(uri, input)
                 .exchange()
 
                 //then
