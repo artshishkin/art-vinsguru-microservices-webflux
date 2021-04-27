@@ -2,7 +2,8 @@ package net.shyshkin.study.webflux.webfluxdemo.controller;
 
 import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @AutoConfigureWebTestClient(timeout = "36000")
 @SpringBootTest
@@ -118,7 +118,7 @@ class ReactiveMathControllerTest {
     }
 
     @Test
-    void multiply() {
+    void multiply_withoutHeader() {
         //given
         int first = 4;
         int second = 5;
@@ -131,6 +131,29 @@ class ReactiveMathControllerTest {
 
                 //then
                 .expectStatus().isCreated()
+                .expectHeader().doesNotExist("X-art-request")
+                .expectHeader().doesNotExist("X-art-response")
+                .expectBody(Response.class)
+                .value(response -> assertThat(response.getOutput()).isEqualTo(first * second));
+    }
+
+    @Test
+    void multiply_withHeader() {
+        //given
+        int first = 4;
+        int second = 5;
+        MultiplyRequestDto multiplyRequestDto = new MultiplyRequestDto(first, second);
+
+        //when
+        webClient.post().uri("/reactive-math/multiply")
+                .header("X-art-request", "hello-test-header")
+                .body(Mono.just(multiplyRequestDto), MultiplyRequestDto.class)
+                .exchange()
+
+                //then
+                .expectStatus().isCreated()
+                .expectHeader().doesNotExist("X-art-request")
+                .expectHeader().valueEquals("X-art-response", "HELLO-TEST-HEADER_resp")
                 .expectBody(Response.class)
                 .value(response -> assertThat(response.getOutput()).isEqualTo(first * second));
     }

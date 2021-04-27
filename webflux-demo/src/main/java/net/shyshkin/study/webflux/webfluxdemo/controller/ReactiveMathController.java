@@ -1,15 +1,21 @@
 package net.shyshkin.study.webflux.webfluxdemo.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
 import net.shyshkin.study.webflux.webfluxdemo.service.ReactiveMathService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
+@Slf4j
 @RestController
 @RequestMapping("reactive-math")
 @RequiredArgsConstructor
@@ -34,8 +40,21 @@ public class ReactiveMathController {
     }
 
     @PostMapping("multiply")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Response> multiply(@RequestBody Mono<MultiplyRequestDto> requestMono) {
-        return mathService.multiply(requestMono);
+    public Mono<ResponseEntity<Response>> multiply(@RequestBody Mono<MultiplyRequestDto> requestMono,
+                                                   @RequestHeader HttpHeaders httpHeaders) {
+
+        log.debug("{}", httpHeaders);
+        Optional<String> headerRespOptional = Optional
+                .ofNullable(httpHeaders.get("X-art-request"))
+                .filter(list -> list.size() > 0)
+                .map(list -> list.get(0).toUpperCase() + "_resp");
+
+        return mathService
+                .multiply(requestMono)
+                .map(response -> ResponseEntity
+                        .status(HttpStatus.CREATED)
+                        .headers(headers -> headerRespOptional
+                                .ifPresent(headerToReturn -> headers.add("X-art-response", headerToReturn)))
+                        .body(response));
     }
 }
