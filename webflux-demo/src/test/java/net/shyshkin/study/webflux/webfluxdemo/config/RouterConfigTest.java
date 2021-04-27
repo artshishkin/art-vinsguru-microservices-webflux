@@ -2,9 +2,11 @@ package net.shyshkin.study.webflux.webfluxdemo.config;
 
 import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
+import net.shyshkin.study.webflux.webfluxdemo.dto.VinsValidationResponse;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -14,9 +16,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 @SpringBootTest
 @AutoConfigureWebTestClient
@@ -28,11 +32,12 @@ class RouterConfigTest {
     @ParameterizedTest
     @ValueSource(strings = {
             "/router/square/{input}",
-            "/router-vins/square/{input}"
+            "/router-vins/square/{input}",
+            "/router/square/{input}/bad-request"
     })
-    void serverResponseRouterFunction(String uri) {
+    void findSquare_valid(String uri) {
         //given
-        int input = 6;
+        int input = 16;
 
         //when
         webClient
@@ -44,6 +49,36 @@ class RouterConfigTest {
                 .expectStatus().isOk()
                 .expectBody(Response.class)
                 .value(response -> assertThat(response.getOutput()).isEqualTo(input * input));
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "/router/square/{input}/bad-request,6",
+            "/router/square/{input}/bad-request,33",
+            "/router/square/{input},6",
+            "/router/square/{input},33",
+            "/router-vins/square/{input},6",
+            "/router-vins/square/{input},33"
+    })
+    void findSquare_invalid(String uri, int input) {
+        //when
+        webClient
+                .get()
+                .uri(uri, input)
+                .exchange()
+
+                //then
+                .expectStatus().isBadRequest()
+                .expectBody(VinsValidationResponse.class)
+                .value(response ->
+                        assertAll(
+                                () -> assertThat(response).hasNoNullFieldsOrProperties()
+                                        .hasFieldOrPropertyWithValue("errorCode", 100)
+                                        .hasFieldOrPropertyWithValue("input", input)
+                                        .hasFieldOrPropertyWithValue("message", "allowed range from 10 to 20"),
+                                () -> assertThat(response.getTimestamp()).isBefore(LocalDateTime.now())
+                        )
+                );
     }
 
     @Test

@@ -3,6 +3,8 @@ package net.shyshkin.study.webflux.webfluxdemo.config;
 import lombok.RequiredArgsConstructor;
 import net.shyshkin.study.webflux.webfluxdemo.dto.MultiplyRequestDto;
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
+import net.shyshkin.study.webflux.webfluxdemo.dto.VinsValidationResponse;
+import net.shyshkin.study.webflux.webfluxdemo.exception.VinsInputValidationException;
 import net.shyshkin.study.webflux.webfluxdemo.service.ReactiveMathService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -20,14 +22,36 @@ public class RequestHandler {
     public Mono<ServerResponse> findSquare(ServerRequest serverRequest) {
 
         int input = Integer.parseInt(serverRequest.pathVariable("input"));
+        if (input < 10 || input > 20)
+            return Mono.error(new VinsInputValidationException(input));
         return mathService
                 .findSquare(input)
                 .flatMap(response -> ServerResponse.ok().bodyValue(response));
     }
 
+    //BAD SOLUTION
+    public Mono<ServerResponse> findSquareWithValidation(ServerRequest serverRequest) {
+
+        int input = Integer.parseInt(serverRequest.pathVariable("input"));
+        if (input >= 10 && input <= 20) {
+            Mono<Response> square = mathService.findSquare(input);
+            return ServerResponse.ok().body(square, Response.class);
+        }
+        return ServerResponse.badRequest().bodyValue(
+                VinsValidationResponse.builder()
+                        .errorCode(100)
+                        .input(input)
+                        .message("allowed range from 10 to 20")
+                        .build());
+    }
+
     public Mono<ServerResponse> findSquareVins(ServerRequest serverRequest) {
 
         int input = Integer.parseInt(serverRequest.pathVariable("input"));
+
+        if (input < 10 || input > 20)
+            return Mono.error(new VinsInputValidationException(input));
+
         Mono<Response> square = mathService.findSquare(input);
         return ServerResponse.ok().body(square, Response.class);
     }
