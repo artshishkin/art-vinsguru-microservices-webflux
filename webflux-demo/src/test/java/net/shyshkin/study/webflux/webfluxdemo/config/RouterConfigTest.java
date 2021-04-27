@@ -1,12 +1,18 @@
 package net.shyshkin.study.webflux.webfluxdemo.config;
 
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,5 +42,30 @@ class RouterConfigTest {
                 .expectStatus().isOk()
                 .expectBody(Response.class)
                 .value(response -> assertThat(response.getOutput()).isEqualTo(input * input));
+    }
+
+    @Test
+    @Disabled("too long for ci/cd")
+    void multiplicationTableStream() {
+        //given
+        int input = 6;
+        AtomicInteger counter = new AtomicInteger(1);
+
+        //when
+        Flux<Response> flux = webClient
+                .get()
+                .uri("/router/table/{input}", input)
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .returnResult(Response.class)
+                .getResponseBody();
+
+        StepVerifier
+                .create(flux)
+                .thenConsumeWhile(response -> response.getOutput() == counter.getAndIncrement() * input)
+                .verifyComplete();
+        assertThat(counter.get()).isEqualTo(11);
     }
 }

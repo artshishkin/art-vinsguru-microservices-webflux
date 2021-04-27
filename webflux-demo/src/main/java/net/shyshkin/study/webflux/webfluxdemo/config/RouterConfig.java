@@ -19,6 +19,7 @@ public class RouterConfig {
                 .route()
                 .GET("router/square/{input}", handler::findSquare)
                 .GET("router-vins/square/{input}", handler::findSquareVins)
+                .GET("router/table/{input}", handler::multiplicationTable)
                 .build();
     }
 
