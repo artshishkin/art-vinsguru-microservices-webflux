@@ -68,4 +68,35 @@ public class Lec47_POST_Request_Test extends BaseTest {
                 )
                 .verifyComplete();
     }
+
+    @Test
+    void multiply_entity_withHeaders() {
+        //given
+        int first = 4;
+        int second = 5;
+        MultiplyRequestDto multiplyRequestDto = new MultiplyRequestDto(first, second);
+
+        //when
+        Mono<ResponseEntity<Response>> responseEntityMono = webClient.post().uri("/reactive-math/multiply")
+                .bodyValue(multiplyRequestDto)
+                .header("X-art-request", "hello-test-header")
+                .retrieve()
+                .toEntity(Response.class)
+                .doOnNext(entity -> log.debug("Receive entity: {}", entity));
+
+        //then
+        StepVerifier
+                .create(responseEntityMono)
+                .assertNext(
+                        entity -> assertAll(
+                                () -> assertThat(entity.getStatusCode())
+                                        .isEqualTo(HttpStatus.CREATED),
+                                () -> assertThat(entity.getHeaders().getFirst("X-art-response"))
+                                        .isEqualTo("HELLO-TEST-HEADER_resp"),
+                                () -> assertThat(entity.getBody().getOutput())
+                                        .isEqualTo(first * second)
+                        )
+                )
+                .verifyComplete();
+    }
 }
