@@ -1,9 +1,9 @@
 package net.shyshkin.study.webflux.webfluxdemo.assignment.config;
 
 import net.shyshkin.study.webflux.webfluxdemo.dto.Response;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,15 +20,19 @@ class AssignmentRouterConfigTest {
 
     @ParameterizedTest(name = "[{index}] {arguments}")
     @CsvSource({
-            "12,+,4,=,16",
-            "12,-,4,=,8",
-            "12,/,4,=,3",
-            "12,*,4,=,48",
+            "calculator,12,+,4,=,16",
+            "calculator,12,-,4,=,8",
+            "calculator,12,/,4,=,3",
+            "calculator,12,*,4,=,48",
+            "calculator2,12,+,4,=,16",
+            "calculator2,12,-,4,=,8",
+            "calculator2,12,/,4,=,3",
+            "calculator2,12,*,4,=,48",
     })
-    void assignmentRouter_headerPresent(int firstOperand, String operator, int secondOperand, String equalSign, int expectedResult) {
+    void assignmentRouter_headerPresent(String endpoint, int firstOperand, String operator, int secondOperand, String equalSign, int expectedResult) {
 
         //when
-        webClient.get().uri("/calculator/{first}/{second}", firstOperand, secondOperand)
+        webClient.get().uri("/{endpoint}/{first}/{second}", endpoint, firstOperand, secondOperand)
                 .header("OP", operator)
                 .exchange()
 
@@ -39,14 +43,15 @@ class AssignmentRouterConfigTest {
     }
 
 
-    @Test
-    void assignmentRouter_headerAbsent() {
+    @ParameterizedTest
+    @ValueSource(strings = {"calculator", "calculator2"})
+    void assignmentRouter_headerAbsent(String endpoint) {
         //given
         int firstOperand = 12;
         int secondOperand = 3;
 
         //when
-        webClient.get().uri("/calculator/{first}/{second}", firstOperand, secondOperand)
+        webClient.get().uri("/{endpoint}/{first}/{second}", endpoint, firstOperand, secondOperand)
                 .exchange()
 
                 //then
@@ -55,15 +60,16 @@ class AssignmentRouterConfigTest {
                 .value(resp -> assertThat(resp).isEqualTo("operator header 'OP' must not be empty or null"));
     }
 
-    @Test
-    void assignmentRouter_wrongOperator() {
+    @ParameterizedTest
+    @ValueSource(strings = {"calculator", "calculator2"})
+    void assignmentRouter_wrongOperator(String endpoint) {
         //given
         int firstOperand = 12;
         int secondOperand = 3;
         String operator = "^";
 
         //when
-        webClient.get().uri("/calculator/{first}/{second}", firstOperand, secondOperand)
+        webClient.get().uri("/{endpoint}/{first}/{second}", endpoint, firstOperand, secondOperand)
                 .header("OP", operator)
                 .exchange()
 

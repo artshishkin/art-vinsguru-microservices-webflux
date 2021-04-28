@@ -29,4 +29,36 @@ public class AssignmentRequestHandler {
                 .map(Response::new)
                 .flatMap(resp -> ServerResponse.ok().bodyValue(resp));
     }
+
+    public Mono<ServerResponse> plus(ServerRequest serverRequest) {
+
+        int firstOperand = Integer.parseInt(serverRequest.pathVariable("first"));
+        int secondOperand = Integer.parseInt(serverRequest.pathVariable("second"));
+
+        return ServerResponse.ok().bodyValue(firstOperand + secondOperand);
+    }
+
+    public Mono<ServerResponse> minus(ServerRequest serverRequest) {
+
+        int firstOperand = Integer.parseInt(serverRequest.pathVariable("first"));
+        int secondOperand = Integer.parseInt(serverRequest.pathVariable("second"));
+
+        return ServerResponse.ok().bodyValue(firstOperand - secondOperand);
+    }
+
+    public Mono<ServerResponse> multiply(ServerRequest serverRequest) {
+
+        int firstOperand = Integer.parseInt(serverRequest.pathVariable("first"));
+        int secondOperand = Integer.parseInt(serverRequest.pathVariable("second"));
+
+        return ServerResponse.ok().bodyValue(firstOperand * secondOperand);
+    }
+
+    public Mono<ServerResponse> divide(ServerRequest serverRequest) {
+
+        int firstOperand = Integer.parseInt(serverRequest.pathVariable("first"));
+        int secondOperand = Integer.parseInt(serverRequest.pathVariable("second"));
+
+        return ServerResponse.ok().bodyValue(firstOperand / secondOperand);
+    }
 }
