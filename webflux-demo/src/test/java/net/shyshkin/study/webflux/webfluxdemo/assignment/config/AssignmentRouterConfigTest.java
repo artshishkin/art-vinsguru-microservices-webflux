@@ -78,4 +78,24 @@ class AssignmentRouterConfigTest {
                 .expectBody(String.class)
                 .value(resp -> assertThat(resp).isEqualTo("function for `^` not found"));
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"calculator", "calculator2"})
+    void assignmentRouter_divisionByZero(String endpoint) {
+        //given
+        int firstOperand = 12;
+        int secondOperand = 0;
+        String operator = "/";
+
+        //when
+        webClient.get().uri("/{endpoint}/{first}/{second}", endpoint, firstOperand, secondOperand)
+                .header("OP", operator)
+                .exchange()
+
+                //then
+                .expectStatus().isBadRequest()
+                .expectBody(String.class)
+                .value(resp -> assertThat(resp).isEqualTo("/ by zero"));
+    }
+
 }

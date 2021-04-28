@@ -4,12 +4,12 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
-import java.util.function.BiFunction;
+import java.util.function.IntBinaryOperator;
 
 @Service
 public class CalculatorService {
 
-    private static final Map<String, BiFunction<Integer, Integer, Integer>> FUNCTION_MAP =
+    private static final Map<String, IntBinaryOperator> FUNCTION_MAP =
             Map.of(
                     "+", Math::addExact,
                     "-", Math::subtractExact,
@@ -17,7 +17,7 @@ public class CalculatorService {
                     "*", Math::multiplyExact
             );
 
-    public Mono<BiFunction<Integer, Integer, Integer>> getFunction(String operator) {
+    public Mono<IntBinaryOperator> getFunction(String operator) {
         return Mono.justOrEmpty(FUNCTION_MAP.get(operator));
     }
 
