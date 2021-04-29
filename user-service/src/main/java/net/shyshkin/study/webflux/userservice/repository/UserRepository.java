@@ -11,7 +11,7 @@ public interface UserRepository extends ReactiveSortingRepository<User, Integer>
     @Modifying
     @Query(
             value = "update users " +
-                    "set balance = balance + :amount " +
+                    "set balance = balance - :amount " +
                     "where id = :userId and balance >= :amount"
     )
     Mono<Boolean> updateUserBalance(Integer userId, Integer amount);
