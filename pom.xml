@@ -13,6 +13,7 @@
 
     <modules>
         <module>webflux-demo</module>
+        <module>product-service</module>
     </modules>
 
 </project>
