@@ -1,4 +1,4 @@
-create table users
+create table if not exists users
 (
     id      bigint auto_increment,
     name    varchar(255),
@@ -6,7 +6,7 @@ create table users
     primary key (id)
 );
 
-create table user_transaction
+create table if not exists user_transaction
 (
     id        bigint auto_increment,
     user_id   bigint,
