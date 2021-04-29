@@ -13,6 +13,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Range;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -239,6 +240,33 @@ class ProductServiceTest {
                         dto -> true,
                         dto -> {
                             assertThat(dto.getPrice()).isBetween(300, 400);
+                            counter.incrementAndGet();
+                        }
+                )
+                .verifyComplete();
+        assertThat(counter.get()).isEqualTo(4);
+    }
+
+    @Test
+    void getProductsByPriceInRange_range() {
+        //given
+        Flux<Product> createFlux = Flux.just(1299, 1300, 1350, 1370, 1400, 1401, 1500)
+                .map(i -> Product.builder().price(i).description("product " + i).build())
+                .flatMap(productRepository::save);
+        StepVerifier.create(createFlux)
+                .thenConsumeWhile(p -> true)
+                .verifyComplete();
+
+        //when
+        Flux<ProductDto> searchFlux = productService.getProductsByPriceInRange(Range.closed(1300, 1400));
+
+        //then
+        AtomicInteger counter = new AtomicInteger(0);
+        StepVerifier.create(searchFlux)
+                .thenConsumeWhile(
+                        dto -> true,
+                        dto -> {
+                            assertThat(dto.getPrice()).isBetween(1300, 1400);
                             counter.incrementAndGet();
                         }
                 )

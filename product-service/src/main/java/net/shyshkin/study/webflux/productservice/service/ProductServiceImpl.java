@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import net.shyshkin.study.webflux.productservice.dto.ProductDto;
 import net.shyshkin.study.webflux.productservice.mapper.ProductMapper;
 import net.shyshkin.study.webflux.productservice.repository.ProductRepository;
+import org.springframework.data.domain.Range;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -56,6 +57,12 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Flux<ProductDto> getProductsByPriceInRange(int min, int max) {
         return repository.findByPriceInRange(min, max)
+                .map(mapper::toDto);
+    }
+
+    @Override
+    public Flux<ProductDto> getProductsByPriceInRange(Range<Integer> range) {
+        return repository.findByPriceBetween(range)
                 .map(mapper::toDto);
     }
 }
