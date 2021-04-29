@@ -1,0 +1,12 @@
+logging:
+  level:
+    net.shyshkin: debug
+server:
+  port: 8092
+spring:
+  application:
+    name: user-service
+  r2dbc:
+    url: r2dbc:h2:mem:///userdb
+#    username: username
+#    password: password
