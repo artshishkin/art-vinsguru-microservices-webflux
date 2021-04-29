@@ -218,4 +218,31 @@ class ProductServiceTest {
                 .map(Product::getId)
                 .block();
     }
+
+    @Test
+    void getProductsByPriceInRange() {
+        //given
+        Flux<Product> createFlux = Flux.just(299, 300, 350, 370, 400, 401, 500)
+                .map(i -> Product.builder().price(i).description("product " + i).build())
+                .flatMap(productRepository::save);
+        StepVerifier.create(createFlux)
+                .thenConsumeWhile(p -> true)
+                .verifyComplete();
+
+        //when
+        Flux<ProductDto> searchFlux = productService.getProductsByPriceInRange(300, 400);
+
+        //then
+        AtomicInteger counter = new AtomicInteger(0);
+        StepVerifier.create(searchFlux)
+                .thenConsumeWhile(
+                        dto -> true,
+                        dto -> {
+                            assertThat(dto.getPrice()).isBetween(300, 400);
+                            counter.incrementAndGet();
+                        }
+                )
+                .verifyComplete();
+        assertThat(counter.get()).isEqualTo(4);
+    }
 }

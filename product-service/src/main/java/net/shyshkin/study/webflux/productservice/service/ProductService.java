@@ -16,4 +16,6 @@ public interface ProductService {
 
     Mono<Void> deleteProduct(String id);
 
+    Flux<ProductDto> getProductsByPriceInRange(int min, int max);
+
 }

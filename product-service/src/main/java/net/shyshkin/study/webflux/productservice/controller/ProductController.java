@@ -47,4 +47,9 @@ public class ProductController {
     Mono<Void> deleteProduct(@PathVariable String id) {
         return productService.deleteProduct(id);
     }
+
+    @GetMapping(value = "price-range", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<ProductDto> getProductsInPriceRange(@RequestParam int min, @RequestParam int max) {
+        return productService.getProductsByPriceInRange(min, max);
+    }
 }

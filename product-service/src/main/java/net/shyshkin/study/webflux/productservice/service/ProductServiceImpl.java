@@ -52,4 +52,10 @@ public class ProductServiceImpl implements ProductService {
     public Mono<Void> deleteProduct(String id) {
         return repository.deleteById(id);
     }
+
+    @Override
+    public Flux<ProductDto> getProductsByPriceInRange(int min, int max) {
+        return repository.findByPriceInRange(min, max)
+                .map(mapper::toDto);
+    }
 }
