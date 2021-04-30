@@ -3,7 +3,7 @@ package net.shyshkin.study.webflux.userservice.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.webflux.userservice.dto.UserDto;
-import net.shyshkin.study.webflux.userservice.mapper.EntityMapper;
+import net.shyshkin.study.webflux.userservice.mapper.UserMapper;
 import net.shyshkin.study.webflux.userservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
-    private final EntityMapper mapper;
+    private final UserMapper mapper;
 
     @Override
     public Flux<UserDto> getAll() {
