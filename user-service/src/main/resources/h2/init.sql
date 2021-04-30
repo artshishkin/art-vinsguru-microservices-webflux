@@ -13,5 +13,11 @@ create table if not exists user_transaction
     amount    int,
     timestamp TIMESTAMP,
     primary key (id),
-    foreign key (user_id) REFERENCES users (id)
+    foreign key (user_id) REFERENCES users (id) on DELETE cascade
 );
+
+insert into users (name, balance)
+VALUES ('Art', 1000),
+       ('Kate', 1500),
+       ('Arina', 2000),
+       ('Nazar', 2500);

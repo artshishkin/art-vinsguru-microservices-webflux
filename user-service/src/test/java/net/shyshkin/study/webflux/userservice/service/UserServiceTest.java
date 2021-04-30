@@ -4,7 +4,9 @@ import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.webflux.userservice.dto.UserDto;
 import net.shyshkin.study.webflux.userservice.entity.User;
+import net.shyshkin.study.webflux.userservice.entity.UserTransaction;
 import net.shyshkin.study.webflux.userservice.repository.UserRepository;
+import net.shyshkin.study.webflux.userservice.repository.UserTransactionRepository;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
@@ -32,6 +35,9 @@ class UserServiceTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserTransactionRepository transactionRepository;
 
     @Autowired
     UserService userService;
@@ -217,5 +223,38 @@ class UserServiceTest {
                 .doOnNext(p -> log.debug("Saved test user: {}", p))
                 .map(User::getId)
                 .block();
+    }
+
+    @Test
+    void deleteUserWithTransactions() {
+        //given
+        Integer userId = getRandomUserId();
+        UserTransaction userTransaction = UserTransaction.builder().userId(userId).amount(1).timestamp(LocalDateTime.now()).build();
+        Mono<UserTransaction> transactionMono = transactionRepository.save(userTransaction);
+        UserTransaction savedTransaction = transactionMono.block();
+        Integer transactionId = savedTransaction.getId();
+
+        StepVerifier
+                .create(transactionRepository.existsById(transactionId))
+                .expectNext(true)
+                .verifyComplete();
+
+        //when
+        Mono<Void> mono = userService.deleteUser(userId);
+
+        //then
+        StepVerifier
+                .create(mono)
+                .verifyComplete();
+
+        StepVerifier
+                .create(userRepository.existsById(userId))
+                .expectNext(false)
+                .verifyComplete();
+
+        StepVerifier
+                .create(transactionRepository.existsById(transactionId))
+                .expectNext(false)
+                .verifyComplete();
     }
 }
