@@ -33,7 +33,7 @@
         </dependency>
         <dependency>
             <groupId>net.shyshkin.study.webflux</groupId>
-            <artifactId>product-service</artifactId>
+            <artifactId>product-service-client</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
