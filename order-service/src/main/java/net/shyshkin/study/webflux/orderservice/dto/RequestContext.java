@@ -1,9 +1,9 @@
 package net.shyshkin.study.webflux.orderservice.dto;
 
 import lombok.Data;
-import net.shyshkin.study.webflux.orderservice.dto.productservice.ProductDto;
-import net.shyshkin.study.webflux.orderservice.dto.userservice.TransactionRequestDto;
-import net.shyshkin.study.webflux.orderservice.dto.userservice.TransactionResponseDto;
+import net.shyshkin.study.webflux.productservice.dto.ProductDto;
+import net.shyshkin.study.webflux.userservice.dto.TransactionRequestDto;
+import net.shyshkin.study.webflux.userservice.dto.TransactionResponseDto;
 
 @Data
 public class RequestContext {
