@@ -1,0 +1,10 @@
+product-service.url: http://localhost:8091/products/
+user-service.url: http://localhost:8092/users/
+server:
+  port: 8093
+spring:
+  application:
+    name: order-service
+logging:
+  level:
+    net.shyshkin: debug
