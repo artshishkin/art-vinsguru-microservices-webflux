@@ -16,7 +16,7 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class DataSetupService implements CommandLineRunner {
 
-    @Value("classpath:h2/init.sql")
+    @Value("${app.sql.init-file}")
     private Resource initSql;
 
     private final R2dbcEntityTemplate entityTemplate;

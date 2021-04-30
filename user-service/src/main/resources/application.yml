@@ -10,3 +10,18 @@ spring:
     url: r2dbc:h2:mem:///userdb
 #    username: username
 #    password: password
+
+app.sql.init-file: classpath:h2/init.sql
+
+---
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  r2dbc:
+    url: r2dbc:postgresql://localhost:6432/userdb
+    username: art
+    password: password
+
+
+app.sql.init-file: classpath:postgres/init.sql
