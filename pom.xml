@@ -6,6 +6,7 @@
 
     <groupId>net.shyshkin.study.webflux</groupId>
     <artifactId>art-vinsguru-microservices-webflux</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
 
     <description>Tutorial - Reactive Microservices with Spring Webflux - from Vinoth Selvaraj (Udemy)
