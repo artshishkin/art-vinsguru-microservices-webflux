@@ -12,6 +12,9 @@ import net.shyshkin.study.webflux.orderservice.util.EntityDtoUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 @Slf4j
 @Service
@@ -40,6 +43,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         return productClient
                 .getProductById(rc.getPurchaseOrderRequestDto().getProductId())
                 .doOnNext(rc::setProductDto)
+                .retryWhen(Retry.fixedDelay(4, Duration.ofMillis(100)))
                 .thenReturn(rc);
     }
 
