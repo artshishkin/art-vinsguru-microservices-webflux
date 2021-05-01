@@ -117,7 +117,9 @@ class PurchaseOrderControllerTest {
                 .userId(userId)
                 .build();
 
-        given(productClient.getProductById(anyString())).willReturn(Mono.error(new WebClientResponseException("404 from GET http://localhost:8091/products/" + productId, 404, "Not Found", null, null, StandardCharsets.UTF_8)));
+        Mono<ProductDto> error404Mono = Mono.error(new WebClientResponseException("404 from GET http://localhost:8091/products/" + productId, 404, "Not Found", null, null, StandardCharsets.UTF_8));
+        given(productClient.getProductById(anyString()))
+                .willReturn(error404Mono, error404Mono, error404Mono, error404Mono, error404Mono);
 
         //when
         webClient.post()

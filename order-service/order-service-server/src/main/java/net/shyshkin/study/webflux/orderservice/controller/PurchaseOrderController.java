@@ -28,6 +28,7 @@ public class PurchaseOrderController {
                 .processOrder(requestDtoMono)
                 .map(respDto -> ResponseEntity.status(HttpStatus.CREATED).body(respDto))
                 .onErrorReturn(WebClientResponseException.class, ResponseEntity.badRequest().build())
+                .onErrorReturn(ex -> "RetryExhaustedException".equals(ex.getClass().getSimpleName()), ResponseEntity.badRequest().build())
                 .onErrorReturn(WebClientRequestException.class, ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build());
     }
 
