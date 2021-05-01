@@ -11,6 +11,7 @@ import net.shyshkin.study.webflux.productservice.dto.ProductDto;
 import net.shyshkin.study.webflux.userservice.dto.TransactionRequestDto;
 import net.shyshkin.study.webflux.userservice.dto.TransactionResponseDto;
 import net.shyshkin.study.webflux.userservice.dto.TransactionStatus;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,10 @@ import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWeb
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -101,4 +104,33 @@ class PurchaseOrderControllerTest {
                 );
 
     }
+
+    @Test
+    void purchaseOrder_wrongData() {
+        //given
+        int userId = 321;
+        String productId = "608aadc95dd22725cee842hh";
+
+        PurchaseOrderRequestDto orderRequestDto = PurchaseOrderRequestDto
+                .builder()
+                .productId(productId)
+                .userId(userId)
+                .build();
+
+        given(productClient.getProductById(anyString())).willReturn(Mono.error(new WebClientResponseException("404 from GET http://localhost:8091/products/" + productId, 404, "Not Found", null, null, StandardCharsets.UTF_8)));
+
+        //when
+        webClient.post()
+                .uri("/orders")
+                .bodyValue(orderRequestDto)
+                .exchange()
+
+                //then
+                .expectStatus().isBadRequest()
+                .expectBody().isEmpty();
+
+        then(productClient).should().getProductById(eq(productId));
+        then(userClient).shouldHaveNoInteractions();
+    }
+
 }
