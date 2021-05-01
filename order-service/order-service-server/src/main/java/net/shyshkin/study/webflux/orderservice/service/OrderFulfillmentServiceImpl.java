@@ -1,6 +1,7 @@
 package net.shyshkin.study.webflux.orderservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.shyshkin.study.webflux.orderservice.client.ProductClient;
 import net.shyshkin.study.webflux.orderservice.client.UserClient;
 import net.shyshkin.study.webflux.orderservice.dto.PurchaseOrderRequestDto;
@@ -10,7 +11,9 @@ import net.shyshkin.study.webflux.orderservice.repository.PurchaseOrderRepositor
 import net.shyshkin.study.webflux.orderservice.util.EntityDtoUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
@@ -21,14 +24,16 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
     @Override
     public Mono<PurchaseOrderResponseDto> processOrder(Mono<PurchaseOrderRequestDto> requestDtoMono) {
-        requestDtoMono
+        return requestDtoMono
                 .map(RequestContext::new)
                 .flatMap(this::productRequestResponse)
                 .doOnNext(EntityDtoUtil::setTransactionDtoUtil)
                 .flatMap(this::userRequestResponse)
-        .map(EntityDtoUtil::getPurchaseOrder)
-        .map(orderRepository::save);
-        return null;
+                .map(EntityDtoUtil::getPurchaseOrder)
+                .map(orderRepository::save) //blocking
+                .doOnNext(purchaseOrder -> log.debug("Saved {}", purchaseOrder))
+                .map(EntityDtoUtil::toDto)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     private Mono<RequestContext> productRequestResponse(RequestContext rc) {

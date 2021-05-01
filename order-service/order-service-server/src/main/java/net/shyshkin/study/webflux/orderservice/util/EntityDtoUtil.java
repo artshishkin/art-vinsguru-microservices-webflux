@@ -1,6 +1,7 @@
 package net.shyshkin.study.webflux.orderservice.util;
 
 import net.shyshkin.study.webflux.orderservice.dto.OrderStatus;
+import net.shyshkin.study.webflux.orderservice.dto.PurchaseOrderResponseDto;
 import net.shyshkin.study.webflux.orderservice.dto.RequestContext;
 import net.shyshkin.study.webflux.orderservice.entity.PurchaseOrder;
 import net.shyshkin.study.webflux.userservice.dto.TransactionRequestDto;
@@ -39,4 +40,14 @@ public class EntityDtoUtil {
         throw new IllegalStateException("Transaction Status Unknown: " + status);
     }
 
+    public static PurchaseOrderResponseDto toDto(PurchaseOrder order) {
+
+        return PurchaseOrderResponseDto.builder()
+                .orderId(order.getId())
+                .userId(order.getUserId())
+                .productId(order.getProductId())
+                .amount(order.getAmount())
+                .status(order.getStatus())
+                .build();
+    }
 }
