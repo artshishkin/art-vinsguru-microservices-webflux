@@ -6,6 +6,7 @@ import net.shyshkin.study.webflux.orderservice.client.UserClient;
 import net.shyshkin.study.webflux.orderservice.dto.PurchaseOrderRequestDto;
 import net.shyshkin.study.webflux.orderservice.dto.PurchaseOrderResponseDto;
 import net.shyshkin.study.webflux.orderservice.dto.RequestContext;
+import net.shyshkin.study.webflux.orderservice.repository.PurchaseOrderRepository;
 import net.shyshkin.study.webflux.orderservice.util.EntityDtoUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -16,6 +17,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
     private final UserClient userClient;
     private final ProductClient productClient;
+    private final PurchaseOrderRepository orderRepository;
 
     @Override
     public Mono<PurchaseOrderResponseDto> processOrder(Mono<PurchaseOrderRequestDto> requestDtoMono) {
@@ -23,7 +25,9 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
                 .map(RequestContext::new)
                 .flatMap(this::productRequestResponse)
                 .doOnNext(EntityDtoUtil::setTransactionDtoUtil)
-                .flatMap(this::userRequestResponse);
+                .flatMap(this::userRequestResponse)
+        .map(EntityDtoUtil::getPurchaseOrder)
+        .map(orderRepository::save);
         return null;
     }
 

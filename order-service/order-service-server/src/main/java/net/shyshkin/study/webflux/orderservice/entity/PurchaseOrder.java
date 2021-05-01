@@ -1,7 +1,6 @@
 package net.shyshkin.study.webflux.orderservice.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import net.shyshkin.study.webflux.orderservice.dto.OrderStatus;
 
 import javax.persistence.Entity;
@@ -11,6 +10,9 @@ import javax.persistence.Id;
 @Entity
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PurchaseOrder {
 
     @Id
