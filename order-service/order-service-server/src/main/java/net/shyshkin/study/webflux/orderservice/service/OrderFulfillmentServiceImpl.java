@@ -38,7 +38,7 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
 
     private Mono<RequestContext> productRequestResponse(RequestContext rc) {
         return productClient
-                .getProductById(rc.getProductDto().getId())
+                .getProductById(rc.getPurchaseOrderRequestDto().getProductId())
                 .doOnNext(rc::setProductDto)
                 .thenReturn(rc);
     }
