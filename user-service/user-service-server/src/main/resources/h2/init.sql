@@ -17,7 +17,7 @@ create table if not exists user_transaction
 );
 
 insert into users (name, balance)
-VALUES ('Art', 1000),
-       ('Kate', 1500),
-       ('Arina', 2000),
-       ('Nazar', 2500);
+VALUES ('Art', 10000),
+       ('Kate', 15000),
+       ('Arina', 20000),
+       ('Nazar', 25000);

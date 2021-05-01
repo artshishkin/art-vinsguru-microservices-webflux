@@ -59,6 +59,20 @@
             <version>1.0.2</version>
             <scope>test</scope>
         </dependency>
+        <!--for web client testing-->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>mockwebserver</artifactId>
+            <version>4.0.1</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

@@ -14,3 +14,10 @@ spring:
 #      password: password
 #      host: localhost
 #      port: 27017
+---
+spring:
+  config:
+    activate:
+      on-profile: simulate-random-exception
+
+app.simulate-random-exception: true
