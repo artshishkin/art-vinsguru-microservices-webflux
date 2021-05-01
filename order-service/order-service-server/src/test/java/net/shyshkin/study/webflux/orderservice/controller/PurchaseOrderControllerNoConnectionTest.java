@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest
-@AutoConfigureWebTestClient(timeout = "36000")
+@AutoConfigureWebTestClient
 class PurchaseOrderControllerNoConnectionTest {
 
     @Autowired

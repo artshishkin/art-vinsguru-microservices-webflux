@@ -10,6 +10,9 @@ import net.shyshkin.study.webflux.orderservice.dto.RequestContext;
 import net.shyshkin.study.webflux.orderservice.repository.PurchaseOrderRepository;
 import net.shyshkin.study.webflux.orderservice.util.EntityDtoUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import reactor.util.retry.Retry;
@@ -43,7 +46,42 @@ public class OrderFulfillmentServiceImpl implements OrderFulfillmentService {
         return productClient
                 .getProductById(rc.getPurchaseOrderRequestDto().getProductId())
                 .doOnNext(rc::setProductDto)
-                .retryWhen(Retry.fixedDelay(4, Duration.ofMillis(100)))
+                .doOnError(ex -> log.error("------------{}:{}", ex.getClass().getName(), ex.getMessage()))
+                .retryWhen(Retry.from(retrySignalFlux ->
+
+                        retrySignalFlux
+                                .handle((rs, synchronousSink) -> {
+                                    Throwable failure = rs.failure();
+                                    if (failure instanceof WebClientResponseException) {
+                                        WebClientResponseException exception = (WebClientResponseException) failure;
+                                        switch (exception.getStatusCode()) {
+                                            case NOT_FOUND:
+                                                synchronousSink.error(failure);
+                                                break;
+                                            case INTERNAL_SERVER_ERROR:
+                                                if (rs.totalRetriesInARow() > 3) {
+                                                    synchronousSink.error(
+                                                            Exceptions
+                                                                    .retryExhausted(
+                                                                            String.format(
+                                                                                    "Retries exhausted: %d/4 in a row (%d total)",
+                                                                                    rs.totalRetriesInARow(), rs.totalRetries()),
+                                                                            failure)
+                                                    );
+                                                } else
+                                                    synchronousSink.next(1);
+                                                break;
+                                            default:
+                                                synchronousSink.error(failure);
+                                                break;
+                                        }
+                                    } else if (failure instanceof WebClientRequestException) {
+                                        synchronousSink.error(failure);
+                                    } else {
+                                        synchronousSink.error(failure);
+                                    }
+                                })
+                                .delayElements(Duration.ofMillis(100))))
                 .thenReturn(rc);
     }
 

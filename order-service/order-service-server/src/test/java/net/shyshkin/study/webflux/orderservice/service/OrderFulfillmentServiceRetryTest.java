@@ -97,7 +97,7 @@ class OrderFulfillmentServiceRetryTest {
                 .userId(userId)
                 .build();
 
-        String errorMessage = "Retries exhausted: 4/4";
+        String errorMessage = "Retries exhausted: 4/4 in a row (4 total)";
 
         for (int i = 0; i < 5; i++) {
             mockBackEndProductService.enqueue(getProductServiceMock500Response());
