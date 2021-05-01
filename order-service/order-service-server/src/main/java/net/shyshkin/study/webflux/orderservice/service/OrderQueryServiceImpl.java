@@ -7,7 +7,6 @@ import net.shyshkin.study.webflux.orderservice.repository.PurchaseOrderRepositor
 import net.shyshkin.study.webflux.orderservice.util.EntityDtoUtil;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @Slf4j
@@ -19,10 +18,9 @@ public class OrderQueryServiceImpl implements OrderQueryService {
 
     @Override
     public Flux<PurchaseOrderResponseDto> getOrdersByUserId(Integer userId) {
-        return Mono
-                .fromSupplier(() -> repository.findAllByUserId(userId))
-                .doOnNext(orderList -> log.debug("orderList: {}", orderList))
-                .flatMapMany(Flux::fromIterable)
+        return Flux
+                .fromStream(() -> repository.findAllByUserId(userId).stream())
+                .doOnNext(order -> log.debug("{}", order))
                 .map(EntityDtoUtil::toDto)
                 .subscribeOn(Schedulers.boundedElastic());
     }
