@@ -8,6 +8,7 @@ import org.springframework.data.domain.Range;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +16,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository repository;
     private final ProductMapper mapper;
+    private final Sinks.Many<ProductDto> sink;
 
     @Override
     public Flux<ProductDto> getAll() {
@@ -35,7 +37,8 @@ public class ProductServiceImpl implements ProductService {
                 .map(mapper::toProduct)
                 .doOnNext(product -> product.setId(null))
                 .flatMap(repository::insert)
-                .map(mapper::toDto);
+                .map(mapper::toDto)
+                .doOnNext(sink::tryEmitNext);
     }
 
     @Override
