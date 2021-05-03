@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 public class AuthController {
 
     @GetMapping("user")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @PreAuthorize("hasAnyRole('USER')")
     public Mono<String> userHome() {
         return Mono.just("user home");
     }
