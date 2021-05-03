@@ -14,6 +14,7 @@
 
     <modules>
         <module>webflux-demo</module>
+        <module>file-upload-example</module>
         <module>product-service</module>
         <module>user-service</module>
         <module>order-service</module>
