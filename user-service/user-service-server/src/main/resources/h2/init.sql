@@ -3,6 +3,7 @@ create table if not exists users
     id      bigint auto_increment,
     name    varchar(255),
     balance int,
+    created_by varchar(50),
     primary key (id)
 );
 
