@@ -43,10 +43,7 @@ public class UploadController {
     }
 
     @PostMapping("file/multi")
-    public Mono<Void> uploadMultipleFiles(@RequestPart("user-name") String name,
-                                          @RequestPart("filesToUpload") Flux<FilePart> filePartFlux) {
-
-        log.debug("user: {} tries to upload to {}", name, basePath);
+    public Mono<Void> uploadMultipleFiles(@RequestPart("filesToUpload") Flux<FilePart> filePartFlux) {
         return filePartFlux
                 .doOnNext(filePart -> log.debug("Received file: {}", filePart.filename()))
                 .flatMap(filePart -> filePart.transferTo(basePath.resolve(filePart.filename())))

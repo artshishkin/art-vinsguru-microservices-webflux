@@ -158,7 +158,6 @@ class UploadControllerTest {
                     .part("filesToUpload", fileContent)
                     .filename(filename);
         }
-        multipartBodyBuilder.part("user-name", "Kate Shyshkina");
         MultiValueMap<String, HttpEntity<?>> multipartData = multipartBodyBuilder.build();
 
         //when
@@ -197,7 +196,6 @@ class UploadControllerTest {
                     .part("filesToUpload", new ClassPathResource("/files/" + filename))
                     .filename(filename);
         }
-        multipartBodyBuilder.part("user-name", "Kate Shyshkina");
         MultiValueMap<String, HttpEntity<?>> multipartData = multipartBodyBuilder.build();
 
         //when
