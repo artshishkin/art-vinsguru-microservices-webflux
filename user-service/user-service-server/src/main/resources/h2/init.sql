@@ -4,6 +4,9 @@ create table if not exists users
     name    varchar(255),
     balance int,
     created_by varchar(50),
+    created TIMESTAMP,
+    modified TIMESTAMP,
+    admin_name varchar(50),
     primary key (id)
 );
 
