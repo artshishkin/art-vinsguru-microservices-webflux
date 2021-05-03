@@ -146,6 +146,9 @@ class UserServiceTest {
                         .hasFieldOrPropertyWithValue("balance", 123)
                 )
                 .verifyComplete();
+        StepVerifier.create(userRepository.findById(userId).log())
+                .assertNext(user -> assertThat(user).hasNoNullFieldsOrProperties())
+                .verifyComplete();
     }
 
     @Test

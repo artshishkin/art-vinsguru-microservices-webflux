@@ -44,8 +44,10 @@ public class UserServiceImpl implements UserService {
     public Mono<UserDto> updateUser(Integer id, Mono<UserDto> userDtoMono) {
         return repository
                 .findById(id)
-                .flatMap(u -> userDtoMono)
-                .map(mapper::toEntity)
+                .flatMap(u -> userDtoMono
+                        .map(mapper::toEntity)
+                        .doOnNext(user -> user.setCreated(u.getCreated()))
+                        .doOnNext(user -> user.setAdminName(u.getAdminName())))
                 .doOnNext(user -> user.setId(id))
                 .flatMap(repository::save)
                 .map(mapper::toDto);
