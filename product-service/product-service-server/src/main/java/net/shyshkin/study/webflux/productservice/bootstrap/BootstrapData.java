@@ -3,12 +3,17 @@ package net.shyshkin.study.webflux.productservice.bootstrap;
 import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.shyshkin.study.webflux.productservice.dto.ProductDto;
 import net.shyshkin.study.webflux.productservice.entity.Product;
 import net.shyshkin.study.webflux.productservice.repository.ProductRepository;
+import net.shyshkin.study.webflux.productservice.service.ProductService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 @Slf4j
 @Component
@@ -17,6 +22,7 @@ import reactor.core.publisher.Flux;
 public class BootstrapData implements CommandLineRunner {
 
     private final ProductRepository repository;
+    private final ProductService productService;
 
     @Override
     public void run(String... args) throws Exception {
@@ -31,10 +37,23 @@ public class BootstrapData implements CommandLineRunner {
                                 .description(Faker.instance().lorem().sentence())
                                 .build())
                 .flatMap(repository::save)
+                .doOnNext(product -> log.debug("saved {}", product))
+                .doOnError(ex -> log.error("{}:{}", ex.getClass().getName(), ex.getMessage()))
+                .doOnComplete(() -> log.debug("------------Bootstrap data completed------------"))
+                .thenMany(f())
                 .subscribe(
-                        product -> log.debug("saved {}", product),
-                        ex -> log.error("{}:{}", ex.getClass().getName(), ex.getMessage()),
-                        () -> log.debug("------------Bootstrap data completed------------")
+                        dto -> log.debug("inserted dto {}", dto),
+                        ex -> log.error("{}:{}", ex.getClass().getName(), ex.getMessage())
                 );
+    }
+
+    private Flux<ProductDto> f() {
+        return Flux.range(1, 1000)
+                .delayElements(Duration.ofSeconds(1))
+                .map(i -> ProductDto.builder()
+                        .price(Faker.instance().random().nextInt(10, 100))
+                        .description("product-" + i)
+                        .build())
+                .flatMap(dto -> productService.insertProduct(Mono.just(dto)));
     }
 }
