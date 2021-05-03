@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
@@ -39,5 +40,16 @@ public class UploadController {
         return filePartMono
                 .doOnNext(filePart -> log.debug("Received file: {}", filePart.filename()))
                 .flatMap(filePart -> filePart.transferTo(basePath.resolve(filePart.filename())));
+    }
+
+    @PostMapping("file/multi")
+    public Mono<Void> uploadMultipleFiles(@RequestPart("user-name") String name,
+                                          @RequestPart("filesToUpload") Flux<FilePart> filePartFlux) {
+
+        log.debug("user: {} tries to upload to {}", name, basePath);
+        return filePartFlux
+                .doOnNext(filePart -> log.debug("Received file: {}", filePart.filename()))
+                .flatMap(filePart -> filePart.transferTo(basePath.resolve(filePart.filename())))
+                .then();
     }
 }

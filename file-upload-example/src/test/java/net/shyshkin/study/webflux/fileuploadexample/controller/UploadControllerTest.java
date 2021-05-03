@@ -145,4 +145,75 @@ class UploadControllerTest {
         String content = Files.readString(UploadController.basePath.resolve(filename));
         assertThat(content).isEqualTo(fileContent);
     }
+
+    @Test
+    void uploadMultipleFiles_fromString() throws IOException {
+
+        //given
+        MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+        for (int i = 1; i <= 3; i++) {
+            String fileContent = fileContent(i);
+            String filename = fileName(i);
+            multipartBodyBuilder
+                    .part("filesToUpload", fileContent)
+                    .filename(filename);
+        }
+        multipartBodyBuilder.part("user-name", "Kate Shyshkina");
+        MultiValueMap<String, HttpEntity<?>> multipartData = multipartBodyBuilder.build();
+
+        //when
+        webClient.post()
+                .uri("/upload/file/multi")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(multipartData))
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody().isEmpty();
+
+        for (int i = 1; i <= 3; i++) {
+            String content = Files.readString(UploadController.basePath.resolve(fileName(i)));
+            assertThat(content).isEqualTo(fileContent(i));
+        }
+    }
+
+    private String fileName(int index) {
+        return String.format("fromString_%02d.txt", index);
+    }
+
+    private String fileContent(int index) {
+        return String.format("File content from String %02d", index);
+    }
+
+    @Test
+    void uploadMultipleFiles_fromClassPathResource() throws IOException {
+
+        //given
+        MultipartBodyBuilder multipartBodyBuilder = new MultipartBodyBuilder();
+        for (int i = 1; i <= 3; i++) {
+            String filename = String.format("file%d.txt", i);
+            multipartBodyBuilder
+                    .part("filesToUpload", new ClassPathResource("/files/" + filename))
+                    .filename(filename);
+        }
+        multipartBodyBuilder.part("user-name", "Kate Shyshkina");
+        MultiValueMap<String, HttpEntity<?>> multipartData = multipartBodyBuilder.build();
+
+        //when
+        webClient.post()
+                .uri("/upload/file/multi")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .body(BodyInserters.fromMultipartData(multipartData))
+                .exchange()
+
+                //then
+                .expectStatus().isOk()
+                .expectBody().isEmpty();
+
+        for (int i = 1; i <= 3; i++) {
+            String content = Files.readString(UploadController.basePath.resolve("file" + i + ".txt"));
+            assertThat(content).isEqualTo("file" + i + " content");
+        }
+    }
 }
