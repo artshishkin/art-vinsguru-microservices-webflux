@@ -34,16 +34,33 @@
             <th scope="col">Price</th>
         </tr>
         </thead>
-        <tbody>
-        <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-        </tr>
+        <tbody id="update-table-body">
         </tbody>
     </table>
 
 </div>
+
+<script>
+
+    const observeProducts = () => {
+        const price = document.getElementById('max-price').value;
+        const tBody = document.getElementById('update-table-body');
+
+        let source = new EventSource("/products/broadcast?maxPrice=" + price);
+        source.onmessage = ev => {
+            let productDto = JSON.parse(ev.data);
+            let row = `
+                <th scope="row">${productDto.id}</th>
+                <td>${productDto.description}</td>
+                <td>${productDto.price}</td>
+            `;
+            let tr = document.createElement('tr');
+            tr.innerHTML = row;
+            tBody.appendChild(tr);
+        };
+    }
+    document.getElementById('notify').addEventListener('click', observeProducts);
+</script>
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
