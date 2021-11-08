@@ -21,7 +21,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const sub = this.productService.getProducts()
+    const sub = this.productService.getProducts(30)
       .pipe(tap(product => console.log(product)))
       .subscribe(product => this.products.push(product));
     this.subs.push(sub);

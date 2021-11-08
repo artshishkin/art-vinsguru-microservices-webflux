@@ -10,15 +10,16 @@ import {Product} from "./product.model";
 })
 export class ProductService {
 
-  private productsUrl = environment.productsUrl;
-
   constructor(private zone: NgZone, private sseService: SseService) {
   }
 
-  getProducts(): Observable<Product> {
+  getProducts(maxPrice?: number): Observable<Product> {
     return new Observable<Product>(
       (subscriber) => {
-        const eventSource = this.sseService.getEventSource(this.productsUrl);
+
+        let productsUrl = environment.productsUrl;
+        if (maxPrice) productsUrl += '?maxPrice=' + maxPrice;
+        const eventSource = this.sseService.getEventSource(productsUrl);
 
         eventSource.onmessage = event => {
           this.zone.run(() => subscriber.next(JSON.parse(event.data)));
