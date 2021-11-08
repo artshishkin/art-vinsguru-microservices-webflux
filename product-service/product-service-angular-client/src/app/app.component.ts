@@ -13,7 +13,7 @@ import {tap} from "rxjs/operators";
 export class AppComponent implements OnInit, OnDestroy {
   title = 'product-service-angular-client';
 
-  subs: Subscription[] = [];
+  private observeProductsSubscription: Subscription | null = null;
 
   products: Product[] = [];
 
@@ -21,14 +21,21 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const sub = this.productService.getProducts(30)
-      .pipe(tap(product => console.log(product)))
-      .subscribe(product => this.products.push(product));
-    this.subs.push(sub);
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach(sub => sub.unsubscribe());
+    if (this.observeProductsSubscription)
+      this.observeProductsSubscription.unsubscribe();
+  }
+
+  observeProducts(maxPrice: number): void {
+
+    if (this.observeProductsSubscription)
+      this.observeProductsSubscription.unsubscribe();
+
+    this.observeProductsSubscription = this.productService.getProducts(maxPrice)
+      .pipe(tap(product => console.log(product)))
+      .subscribe(product => this.products.push(product));
   }
 
 }

@@ -2,8 +2,23 @@
   <div class="row">
     <div class="col-md-12">
 
+      <form>
+        <div class="form-group">
+          <label for="max-price">Max price</label>
+          <input type="number" class="form-control" id="max-price" aria-describedby="maxPriceHelp"
+                 placeholder="Max price" #maxPriceInput>
+          <small id="maxPriceHelp" class="form-text text-muted">Set max interested price for informing of
+            updates.</small>
+        </div>
+        <button id="notify"
+                type="button"
+                class="btn btn-secondary form-control font-weight-bold"
+                (click)="observeProducts(+maxPriceInput.value)">
+          Notify me!!!
+        </button>
+      </form>
 
-      <table class="table mt-5">
+      <table class="table mt-5" *ngIf="products.length > 0">
         <thead class="thead-dark">
         <tr>
           <th scope="col">Id</th>
