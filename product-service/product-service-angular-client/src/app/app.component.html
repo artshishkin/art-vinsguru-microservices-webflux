@@ -1,1 +1,27 @@
-<h3>Product Client Works!</h3>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+
+
+      <table class="table mt-5">
+        <thead class="thead-dark">
+        <tr>
+          <th scope="col">Id</th>
+          <th scope="col">Description</th>
+          <th scope="col">Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let product of products">
+          <th scope="row">{{product.id}}</th>
+          <td>{{product.description}}</td>
+          <td>{{product.price}}</td>
+        </tr>
+
+        </tbody>
+      </table>
+
+
+    </div>
+  </div>
+</div>

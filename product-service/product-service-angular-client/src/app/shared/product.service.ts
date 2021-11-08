@@ -20,7 +20,7 @@ export class ProductService {
       const eventSource = this.sseService.getEventSource(this.productsUrl);
 
       eventSource.onmessage = event => {
-        this.zone.run(() => observer.next(event.data));
+        this.zone.run(() => observer.next(JSON.parse(event.data)));
       };
 
       eventSource.onerror = error => {
