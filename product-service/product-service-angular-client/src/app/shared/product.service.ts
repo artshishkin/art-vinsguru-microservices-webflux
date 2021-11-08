@@ -1,5 +1,5 @@
 import {Injectable, NgZone} from '@angular/core';
-import {Observable, Observer} from "rxjs";
+import {Observable} from "rxjs";
 
 import {SseService} from "./sse.service";
 import {environment} from "../../environments/environment";
@@ -16,17 +16,18 @@ export class ProductService {
   }
 
   getProducts(): Observable<Product> {
-    return Observable.create((observer: Observer<Product>) => {
-      const eventSource = this.sseService.getEventSource(this.productsUrl);
+    return new Observable<Product>(
+      (subscriber) => {
+        const eventSource = this.sseService.getEventSource(this.productsUrl);
 
-      eventSource.onmessage = event => {
-        this.zone.run(() => observer.next(JSON.parse(event.data)));
-      };
+        eventSource.onmessage = event => {
+          this.zone.run(() => subscriber.next(JSON.parse(event.data)));
+        };
 
-      eventSource.onerror = error => {
-        this.zone.run(() => observer.error(error));
-      };
+        eventSource.onerror = error => {
+          this.zone.run(() => subscriber.error(error));
+        };
 
-    });
+      });
   }
 }
