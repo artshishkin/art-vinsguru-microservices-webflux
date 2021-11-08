@@ -48,8 +48,7 @@ public class BootstrapData implements CommandLineRunner {
     }
 
     private Flux<ProductDto> f() {
-        return Flux.range(1, 1000)
-                .delayElements(Duration.ofSeconds(1))
+        return Flux.interval(Duration.ofSeconds(1))
                 .map(i -> ProductDto.builder()
                         .price(Faker.instance().random().nextInt(10, 100))
                         .description("product-" + i)
